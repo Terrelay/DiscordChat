@@ -13,6 +13,7 @@ class DiscordClient(discord.Client):
         print('Logged on as', self.user)
 
 class DiscordChat(TPlugin):
+    # event that handles DISCORD chat messages and forwards them to all connected players using the BroadcastChat lib function
     async def on_discord_message(self,message):
         if message.channel.id != 599404562926796800:
             return
@@ -23,6 +24,7 @@ class DiscordChat(TPlugin):
         tmsg = "[Discord] "+message.author.name+": "+message.content
         await self.srv.broadcastChat(None,message=tmsg,color=b"\x5e\xa2\xe6") 
 
+    # Initialize the Discord bot during plugin load time, and register a dummy command to be able to check if its online
     async def on_plugin_load(self,srv:TRelayServer):
         print("Loaded DiscordChat")
         self.discord = DiscordClient(self)
@@ -35,6 +37,7 @@ class DiscordChat(TPlugin):
     async def on_plugin_unload(self,srv:TRelayServer):
         await self.discord.logout()
 
+    # event that handles INGAME chat messages and forwards them to a specific channel
     async def on_chat_message(self,srv:TRelayServer,cl:TClientConnection,msg:str,emote:bool):
         await self.discord.get_channel(599404562926796800).send(("*"+cl.name+" "+msg+"*" if emote else "<"+cl.name+"> "+msg))
 
